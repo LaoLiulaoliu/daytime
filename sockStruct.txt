@@ -1,4 +1,4 @@
-struct sockaddr {
+﻿struct sockaddr {
 	unsigned short sa_family;	/*   地址族,   AF_xxx   */  
 	char sa_data[14];		/*   14字节的协议地址*/  
 };  
@@ -7,8 +7,8 @@ struct sockaddr {
          
 struct sockaddr_in {
 	short int sin_family;		/*   地址族   */  
-	unsigned short int sin_port;	/*   端口号   */  
-	struct in_addr sin_addr;	/*   Internet地址   */  
+	unsigned short int sin_port;	/*   端口号 NBO  */  
+	struct in_addr sin_addr;	/*   Internet地址 NBO  */  
 	unsigned char sin_zero[8];	/*   与struct   sockaddr一样的长度   */  
 };  
          
@@ -16,14 +16,25 @@ struct sockaddr_in {
          
 struct in_addr {
 	unsigned long s_addr;  
-};  
-   
-  inet_addr()是将一个点分制的IP地址(如192.168.0.1)转换为上述结构中需要的32位IP地址(0xC0A80001)。
+};
 
-struct hostent {
-  char  *h_name;
-  char  **h_aliases;
-  int   h_addrtype;
-  int   h_length;
-  char  **h_addr_list;
-  };
+typedef struct in_addr {
+        union {
+                struct { UCHAR s_b1,s_b2,s_b3,s_b4; } S_un_b;
+                struct { USHORT s_w1,s_w2; } S_un_w;
+                ULONG S_addr;
+        } S_un;  
+   
+  inet_addr()是将一个点分制的IP地址(如192.168.0.1)(0xC0A80001)转换为上述结构中需要的32位IP地址(0x0100A8C0)。
+
+
+struct hostent
+{
+  char *h_name;                 /* Official name of host.  */
+  char **h_aliases;             /* Alias list.  */
+  int h_addrtype;               /* Host address type.  */
+  int h_length;                 /* Length of address.  */
+  char **h_addr_list;           /* List of addresses from name server.  */
+#define h_addr  h_addr_list[0]  /* Address, for backward compatibility.  */
+};
+
